@@ -1,1 +1,9 @@
+test mod roles x2, 
+// keep settings.js
+test cah afk player
+test cah kick/leave
 
+fix elven(armor values a bit bigger) + enchant?, add to ele + Ondolemar + check male, fix armas, move armors, 
+fix dark elv helmet beastraces
+lower gold
+keep changelog?
