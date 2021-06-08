@@ -1,19 +1,39 @@
-	
-traps buff?, watch vids, change pfp, test stamina/health with level buffs - player.setlevel 22
+traps buff?, watch vids, change pfp, test stamina/health with level buffs
 
 #bows
-	otocit bows?, compatible with 3T?, test tempering
+	otocit bows?, test tempering, place nordic in the world?
+
+
+	Patched bows, added them to level lists and replaced few hand-placed bows with their scoped versions.
+	Chance of getting scoped bows instead of normal ones is cca 30 - 50%.
 
 	Made on
 		Requiem version 		- 4.0.1 SE
 		Scoped bows version 	- 1.
 
-	- Compatible with 3Tweaks - after
-	- If you have Minor Arcana place this mod after it
-	- Chance of getting scoped bows instead of normal ones is cca 30 - 50%
-	- forar needed
+	- Requires Fozar's Dragonborn patch
+	- Compatible with 3Tweaks, BTweaks and Minor Arcana (Place this mod after all of them in Load order)
+	
+	Contant me if you encounter any bugs.
+
+
+4. Extract the contents 03 Silver Knight from the Patches file 
+5. Run NIF Optimizer on the Meshes folder from above 
+7. Use BSA (Browser) to extract the SPOAsilverknight.bsa into your SSE Data folder. Make sure you click Extract All Folders
 
 varicocele 
 
 https://www.nexusmods.com/skyrimspecialedition/mods/13236?tab=posts&BH=3
 https://github.com/bradtraversy/design-resources-for-developers#css-frameworks
+https://github.com/dessant/buster#readme
+
+
+fnis?
+get real exp console
+vycistit bryle
+dovolena
+
+
+C:\Users\bartos\AppData\Roaming\Notepad++\userDefineLang.xml
+
+Hello, as you probably know Requiem overhaul was using Silver Knight armor for Tyranus, since Requiem 4.0 Tyranus is back to default outfit so I made a patch to give him Silver Knight again and Ive been thinking about uploading it to Nexus with your permission. Its only patch so it requires original mod.
