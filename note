@@ -4,7 +4,7 @@ player.kill?
 watch vids, change pfp
 
 #bows
-	otocit bows?,
+	otocit bows?
 
 
 	Patched bows, added them to level lists and replaced few hand-placed bows with their scoped versions, removed edits to NPC for better compatibility.
@@ -12,7 +12,7 @@ watch vids, change pfp
 
 	Made on
 		Requiem version 		- 4.0.1 SE
-		Scoped bows version 	- 1.
+		Scoped bows version 		- 1.3.1
 
 	- Requires Fozar's Dragonborn patch
 	- Compatible with 3Tweaks, BTweaks and Minor Arcana (Place this mod after all of them in Load order)
