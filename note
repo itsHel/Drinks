@@ -1,11 +1,17 @@
-traps buff?, watch vids, change pfp, test stamina/health with level buffs
+https://github.com/mpaland/printf/issues/15
+no ticket - practically criminal, coffee girl + dream girl?
+postponig talking bss?
+
+
+
+traps buff?, watch vids, change pfp
 
 #bows
-	otocit bows?, test tempering, place nordic in the world?
+	otocit bows?, test tempering, nordic bow damage
 
 
-	Patched bows, added them to level lists and replaced few hand-placed bows with their scoped versions.
-	Chance of getting scoped bows instead of normal ones is cca 30 - 50%.
+	Patched bows, added them to level lists and replaced few hand-placed bows with their scoped versions, removed edits to NPC for better compatibility.
+	Odds of spawning scoped bows compared to normal ones are around 40%.
 
 	Made on
 		Requiem version 		- 4.0.1 SE
@@ -29,7 +35,6 @@ https://github.com/dessant/buster#readme
 
 
 fnis?
-get real exp console
 vycistit bryle
 dovolena
 
