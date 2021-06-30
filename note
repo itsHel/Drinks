@@ -26,15 +26,13 @@ varicocele
 C:\Users\bartos\AppData\Roaming\Notepad++\userDefineLang.xml
 
 
-	asis
-
-*	amazon	
-	design img send her
-*	woody allen movies			Manhattan		Manželé a manželky 		Zločiny a poklesky
 	
-	campfire water flasks visible
+	rucnik vyprat, check jeans, hrnek, forgot rings, save all, amazon :roll:, todos, fix bot, drinks
+	mod to see health on ground, set battlestaves - compare to steel, silver, elven
+	
+	+SC009::8
+	scrolllock::
+		suspend
+		setscrolllockstate % !getkeystate("scrolllock", "T")
+		return
 	summerset shadows bug
-	darwin bow scoped
-	keys F1
-	no breath underwater	
-	ice warhammer + more?
