@@ -38,9 +38,13 @@
                 width: 100%;
                 margin-top: 50px;
 			}
-            
+            .button-wrapper{
+                overflow: hidden;
+                width:100%;
+                text-align: center;
+            }
 			.buttons-main, .buttons{
-				min-width:40%;
+				min-width:300px;
 				padding:0.9rem 1rem;
 				border-radius:8px;
 				transition: all 0.5s;
@@ -56,35 +60,38 @@
             }
             .buttons-main{
                 transition: all 0.3s;
-                
             }
 			.buttons-main:active{
-				
 				box-shadow:0 0 5px 2px rgba(0,0,0,0.3);
 			}
-            .buttons-main:active:after{
-              padding: 0;
-              margin: 0;
-              opacity: 1;
-              transition: 0s;
-            }
-            .buttons-main:after {
-              overflow: visible;
-              content: "";
-              background: white;
-              display: block;
-              position: absolute;
-              padding-top: 200%;
-              padding-left: 350%;
-              margin-left: -20px !important;
-              margin-top: -120%;
-              opacity: 0;
-              transition: all 1s;
-            }
             .buttons-main:focus{
                 opacity: 1 !important;
             }
+            .ripple-button .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background-color: white;
+  width: calc(100% / 4);
+  padding-top: calc(100% / 4);
+  margin-top: calc(100% / -8);
+  margin-left: calc(100% / -8);
+  animation: ripple 0.7s;
+  animation-fill-mode: forwards;
+  pointer-events: none;
+  touch-action: none;
+  opacity: 0.7;
+}
 
+@keyframes ripple {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(10);
+  }
+}
             .buttons{
                  display: inline-block !important;
             }
@@ -352,6 +359,72 @@
 			// Object of arrays of dates 	// one date = one click
 			let stats = JSON.parse(window.localStorage["stats"] || "{}");
 
+
+            let _openRequest = indexedDB.open("drinks-full", 1);
+
+            function init(){
+                _openRequest.onupgradeneeded = function() {
+                    let db = _openRequest.result;
+
+                    if (!db.objectStoreNames.contains('drinks')) {                                  // if there's no "books" store
+                        db.createObjectStore('drinks', {keyPath: 'id', autoIncrement: true});       // create it
+                    }
+
+                    this.transaction.objectStore("drinks").createIndex('type', 'type');
+                    this.transaction.objectStore("drinks").createIndex('created', 'created');
+                }
+
+                _openRequest.onerror = function() {
+                    console.error("onError", this.error);
+                };
+
+                _openRequest.onsuccess = function() {
+                    let db = this.result;
+                    let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
+
+                    // drinks.delete(105);      // Delete by id
+
+                    drinks.getAll().onsuccess = function(){
+                        console.warn("getAll:");
+                        console.log(this.result);
+
+                        let data = this.result;
+
+                        let unique = {};
+                        data.forEach(record => {
+                            // console.log(record);
+                            if(unique.hasOwnProperty(record.type)){
+                                ++unique[record.type];
+                            } else {
+                                unique[record.type] = 1;
+                            }
+                        });
+
+                        let realData = {};
+                        data.forEach(record => {
+                            if(!realData.hasOwnProperty(record.type)){
+                                realData[record.type] = [];
+                            }
+
+                            realData[record.type].push(record.created);
+                        });
+
+                        buttons = [];
+                        for (const property in unique) {
+                            buttons.push(property);
+                        }
+
+                        stats = realData;
+                        
+                        renderButtons();
+                        renderGraph();
+                        renderStats(stats);
+                    }
+                };
+            }
+
+            init();
+
             let mouseDown = false;
             let lastMarked = -1;
             
@@ -359,18 +432,13 @@
             
             let holdTimeout;
             
-			renderButtons();
-			renderStats(stats);
 			initListeners();
 			initDates();
-            renderGraph();
 
-            console.log(buttons);
-			
 			function addClick($button, e){
                 let text = $button.text();
                 let date;
-                
+
 				if(!stats.hasOwnProperty(text))
 					stats[text] = [];
 
@@ -382,8 +450,21 @@
                     date = new Date().toLocaleString("sv").slice(0, -3);
                 }
 
+        // let now = new Date().toLocaleString("sv");
+
+                let db = _openRequest.result;
+                let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
+
+                let col = {type: text, created: date};
+
+                // colors.add(col).onsuccess = function() { 
+                //     console.log("onSuccess col added to the store", this.result);
+                // };
+
+                drinks.add(col);
+
 				stats[text].push(date);
-				window.localStorage["stats"] = JSON.stringify(stats);
+				// window.localStorage["stats"] = JSON.stringify(stats);
 				refreshStats(text);
 			}
 
@@ -411,9 +492,6 @@
                     $(".modal").fadeOut(500);
 				});
 
-				$(".buttons-main").on("click", function(e){
-					addClick($(this), e);
-				});
                 $(".buttons-main").on("mousedown touchstart", function(){
                     mouseDown = true;
                     lastMarked = $(this).index();
@@ -497,12 +575,19 @@
             
 			function renderButtons(){
 				let buttonsHtml = buttons.map((button, index) => {
-					return "<button class='buttons-main bttn-gradient bttn-lg bttn-warning " + button + "'>" + button + "</button>";
+					return "<div class=button-wrapper><button class='buttons-main ripple-button bttn-gradient bttn-lg bttn-warning " + button + "'>" + button + "</button></div>";
 				}).join("");
 				$("#buttons").html(buttonsHtml);
+
+                $(".buttons-main").on("click", function(e){
+					addClick($(this), e);
+				});
+
+                document.querySelectorAll(".ripple-button").forEach(button => {
+                    addRipple(button);
+                });
 			}
 			function renderStats(statsFiltered){
-                console.log(statsFiltered);
                 let lowestDay = "3000";
                 for(const stat in statsFiltered){
                     if(lowestDay > statsFiltered[stat][0])
@@ -532,13 +617,27 @@
 			function addNew(val){
 				buttons.push(val);
                 stats[val] = [];
-				window.localStorage["buttons"] = JSON.stringify(buttons);
-                window.localStorage["stats"] = JSON.stringify(stats);
-                location.reload();
+
+                let date = new Date().toLocaleString("sv").slice(0, -3);
+
+                let db = _openRequest.result;
+
+                let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
+
+                let col = {type: val, created: date};
+
+                drinks.add(col).onsuccess = function() { 
+                    location.reload();
+                };
+
+				// window.localStorage["buttons"] = JSON.stringify(buttons);
+                // window.localStorage["stats"] = JSON.stringify(stats);
+                // location.reload();
 			}
             
             function renderGraph(type = "all"){
                 // Parse data
+                
                 let graphData = {};
                 let allDates = [];
                 let colors = {};
@@ -561,13 +660,15 @@
                         time = now;
                         break;
                 }
-                
+                console.log("Stats");
+     console.log(stats);
                 for(let key in stats){
                     graphData[key] = {
                         dates: [],
                         counts: []
                     };
-                    
+                    console.log("graphdata");
+    
                     let count = 0;
                     let skip = false;
                     for(let i = 0; i < stats[key].length; i++){
@@ -607,7 +708,8 @@
                     
                     allDates.push(...graphData[key].dates);
                 }
-
+                console.log(graphData);
+                console.log(allDates);
                 switch(type.toLowerCase()){
                     case "day": case "24h":
                         time = 86400 * 1000;
@@ -738,6 +840,26 @@
                     myLineChart.update();
                 }
             }
+
+            function addRipple(button){
+                button.addEventListener("click", function(e){
+                    let x, y;
+                    if((e.originalEvent || e).isTrusted){
+                        x = e.offsetX;
+                        y = e.offsetY;
+                    } else {
+                        x = e.target.clientWidth / 2;
+                        y = e.target.clientHeight / 2;
+                    }
+
+                    let html = "<span class='ripple' style='left:" + x + "px;top:" + y + "px;'></span>";
+
+                    button.insertAdjacentHTML("beforeend", html);
                 
+                    setTimeout(function(){
+                        button.querySelector(".ripple").remove();
+                    }, 1000);
+                });
+            }
 		</script>
 </html>
