@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link rel="icon" href="https://cdn.discordapp.com/emojis/365990021880086528.png?v=1">
-		<meta charset="utf-8">
-		 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<title>Drinks</title>
-		 <meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="icon" href="https://cdn.discordapp.com/emojis/365990021880086528.png?v=1">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="bttn.min.css">
+        <!-- MDB (including charts) -->
+        <!-- https://www.chartjs.org/docs/2.8.0/charts/line.html -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
+
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style>
-			html{scroll-behavior: smooth;}
+            *{
+                font-family: "Gill Sans", sans-serif;
+            }
             body, html{
                 min-height: 100%;
                 margin:0;
@@ -15,9 +25,6 @@
                 max-width: 760px !important;
                 position: relative;
                 margin: 0 auto;
-            }
-            *{
-                font-family: "Gill Sans", sans-serif;
             }
 			.main, .graph{
 				width:100%;
@@ -60,6 +67,9 @@
             }
             .buttons-main{
                 transition: all 0.3s;
+				border-radius: 100px;
+				box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+				text-shadow: 0 1px 0 hsl(0deg 0% 100% / 25%);
             }
 			.buttons-main:active{
 				box-shadow:0 0 5px 2px rgba(0,0,0,0.3);
@@ -68,30 +78,30 @@
                 opacity: 1 !important;
             }
             .ripple-button .ripple {
-  position: absolute;
-  border-radius: 50%;
-  background-color: white;
-  width: calc(100% / 4);
-  padding-top: calc(100% / 4);
-  margin-top: calc(100% / -8);
-  margin-left: calc(100% / -8);
-  animation: ripple 0.7s;
-  animation-fill-mode: forwards;
-  pointer-events: none;
-  touch-action: none;
-  opacity: 0.7;
-}
+                position: absolute;
+                border-radius: 50%;
+                background-color: white;
+                width: calc(100% / 4);
+                padding-top: calc(100% / 4);
+                margin-top: calc(100% / -8);
+                margin-left: calc(100% / -8);
+                animation: ripple 0.7s;
+                animation-fill-mode: forwards;
+                pointer-events: none;
+                touch-action: none;
+                opacity: 0.7;
+			}
+			@keyframes ripple {
+			  from {
+				opacity: 0.7;
+				transform: scale(1);
+			  }
+			  to {
+				opacity: 0;
+				transform: scale(10);
+			  }
+			}
 
-@keyframes ripple {
-  from {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(10);
-  }
-}
             .buttons{
                  display: inline-block !important;
             }
@@ -137,7 +147,6 @@
                 color: rgba(0,0,0,0.85);
             }
 			#stats li{
-/*				border-bottom:1px solid rgba(0,0,0,0.5);*/
                 padding:6px;
                 font-size: 1rem;
 			}
@@ -148,8 +157,6 @@
                 margin-top: 50px;
                 min-width: 50%;
             }
-			.count{
-			}
             .counts{
 				font-weight: bold;
                 float:right;
@@ -173,7 +180,6 @@
 			}
             button{
                 cursor: pointer;
-/*                outline:none;*/
             }
             #plus{
                 position: absolute;
@@ -185,11 +191,19 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                /* box-shadow: 2px 2px 2px 2px; */
                 font-weight: bold;
                 font-size: 3em;
                 cursor:pointer;
                 min-width: auto;
+                padding: 0 !important;
+            }
+            #latest{
+                text-align: center;
+                padding:2rem;
+                color: rgba(0,0,0,0.6);
+            }
+            #latest-count{
+                font-weight: bold;
             }
             .stats-nav > button{
                 margin: 3px;
@@ -202,7 +216,6 @@
             .selected, .selected-graph{
                 background: #feab3a !important;
                 color: #fff !important;
-                
                 box-shadow: 0 1px 6px rgb(58 51 53 / 30%);
             }
            .selected:after, .selected:before, .selected-graph:after, .selected-graph:before{
@@ -277,20 +290,11 @@
                 top:2px;
                 border:1px solid rgba(0,0,0,0.125);
                 border-radius: 50%;
-
                 background-position: center;
                 background-repeat: no-repeat;
                 background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' height='32px' viewBox='0 0 24 24' width='32px' fill='rgb(99,99,99)'><path d='M0 0h24v24H0V0z' fill='none'/><path d='M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8z'/></svg>");
             }
 		</style>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-		<link rel="stylesheet" href="bttn.min.css">
-        <!-- Graphs -->
-        <!-- https://www.chartjs.org/docs/2.8.0/charts/line.html -->
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
-
 	</head>
 		
 	<body>
@@ -310,6 +314,7 @@
                     <button class="bttn-unite bttn-warning bttn-md date-button selected">All</button>
                 </div>
                 <div id=stats></div>
+                <div id=latest><span>Latest: </span><span id=latest-count></span></div>
             </div>
             
             <button class="buttons bttn-unite bttn-warning" id=plus>+</button>
@@ -366,8 +371,8 @@
                 _openRequest.onupgradeneeded = function() {
                     let db = _openRequest.result;
 
-                    if (!db.objectStoreNames.contains('drinks')) {                                  // if there's no "books" store
-                        db.createObjectStore('drinks', {keyPath: 'id', autoIncrement: true});       // create it
+                    if (!db.objectStoreNames.contains('drinks')) { 
+                        db.createObjectStore('drinks', {keyPath: 'id', autoIncrement: true});
                     }
 
                     this.transaction.objectStore("drinks").createIndex('type', 'type');
@@ -392,7 +397,6 @@
 
                         let unique = {};
                         data.forEach(record => {
-                            // console.log(record);
                             if(unique.hasOwnProperty(record.type)){
                                 ++unique[record.type];
                             } else {
@@ -450,22 +454,22 @@
                     date = new Date().toLocaleString("sv").slice(0, -3);
                 }
 
-        // let now = new Date().toLocaleString("sv");
-
                 let db = _openRequest.result;
                 let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
 
                 let col = {type: text, created: date};
 
+                drinks.add(col);
+
+				stats[text].push(date);
+				refreshStats(text);
+
+                // ***************************************************  ***************************************************
+
                 // colors.add(col).onsuccess = function() { 
                 //     console.log("onSuccess col added to the store", this.result);
                 // };
 
-                drinks.add(col);
-
-				stats[text].push(date);
-				// window.localStorage["stats"] = JSON.stringify(stats);
-				refreshStats(text);
 			}
 
 			function initListeners(){
@@ -546,7 +550,6 @@
                         } else {
                             time = now - dayStart;
                         }
-                        console.log(time);
                         break;
                     case "day": case "24h":
                         time = 86400 * 1000;
@@ -570,6 +573,7 @@
                         return (new Date(drinkTime).getTime() > now - time);
                     });
                 }
+
                 renderStats(statsFiltered);
             }
             
@@ -587,6 +591,7 @@
                     addRipple(button);
                 });
 			}
+
 			function renderStats(statsFiltered){
                 let lowestDay = "3000";
                 for(const stat in statsFiltered){
@@ -596,24 +601,32 @@
                 let then = new Date(lowestDay).getTime();
                 let today = new Date().getTime();
                 let dayCount = Math.ceil((today - then) / 86400000);
-                
+                let newest = "";
+
 				let statsArray = [];
 				for(const stat in statsFiltered){
                     let average = Math.round(statsFiltered[stat].length/dayCount*10)/10;
 					statsArray.push("<li id='stat-" + stat + "'><span class=title>" + stat + "</span><span class=counts><span class=average>" + average + "</span><span class=count>" + statsFiltered[stat].length + "</span></span></li>");
+
+                    if(newest < statsFiltered[stat][statsFiltered[stat].length - 1]){
+                        newest = statsFiltered[stat][statsFiltered[stat].length - 1];
+                    }
 				}
+
                 let nav = "<li style='overflow:hidden'><span class=counts><span class='average stats-head'>Daily</span><span class='count stats-head'>Total</span></li>";
 				let statsHtml = "<ul>" + nav + statsArray.sort(function(a, b){
 					return parseInt(b.match(/count>(\d+)</)[1]) - parseInt(a.match(/count>(\d+)</)[1]);
 				}).join("") + "</ul>";
+
 				$("#stats").html(statsHtml);
+                $("#latest-count").text(newest);
 			}
+
 			function refreshStats(name){
 				let count = parseInt($("#stat-" + name + " .count").text()) + 1;
-                // renderStats(stats)
                 filterStats($(".selected").text());
-				// $("#stat-" + name + " .count").text(count);
 			}
+
 			function addNew(val){
 				buttons.push(val);
                 stats[val] = [];
@@ -629,15 +642,9 @@
                 drinks.add(col).onsuccess = function() { 
                     location.reload();
                 };
-
-				// window.localStorage["buttons"] = JSON.stringify(buttons);
-                // window.localStorage["stats"] = JSON.stringify(stats);
-                // location.reload();
 			}
             
             function renderGraph(type = "all"){
-                // Parse data
-                
                 let graphData = {};
                 let allDates = [];
                 let colors = {};
@@ -660,14 +667,12 @@
                         time = now;
                         break;
                 }
-                console.log("Stats");
-     console.log(stats);
+                
                 for(let key in stats){
                     graphData[key] = {
                         dates: [],
                         counts: []
                     };
-                    console.log("graphdata");
     
                     let count = 0;
                     let skip = false;
@@ -708,8 +713,7 @@
                     
                     allDates.push(...graphData[key].dates);
                 }
-                console.log(graphData);
-                console.log(allDates);
+
                 switch(type.toLowerCase()){
                     case "day": case "24h":
                         time = 86400 * 1000;
@@ -753,8 +757,7 @@
                     }
                 }
                 
-                let ctxl = $("#lineChart")[0].getContext('2d');
-
+                // Filled background graphs
                 // var firstGradient = ctxl.createLinearGradient(0, 0, 200, 200);
                 // firstGradient.addColorStop(0, "rgba(10,3,138,0.4)");
                 // firstGradient.addColorStop(0.5, "rgba(91,91,255,0.4)");
@@ -776,6 +779,9 @@
                 // fourthGradient.addColorStop(1, "rgba(111,66,255,0.4)");
 
                 // let graphColors = [firstGradient, secondGradient, thirdGradient, fourthGradient];
+
+                let ctxl = $("#lineChart")[0].getContext('2d');
+
                 let lineColors = ['rgba(0, 10, 130, .7)','rgba(200, 99, 132, .9)','rgba(133, 0, 61, .9)','rgba(100, 180, 132, .7)'];
                 
                 let graphRenderData = [];
