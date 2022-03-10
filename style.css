@@ -5,9 +5,13 @@ body, html{
     min-height: 100%;
     margin: 0;
     height: 100%;
-    max-width: 760px !important;
+    max-width: 780px !important;
     position: relative;
     margin: 0 auto;
+}
+body{
+    display: flex;
+    flex-direction: column;
 }
 .main, .chart{
     width: 100%;
@@ -16,11 +20,11 @@ body, html{
     align-items: center;
     height: 100%;
     justify-content: center;
+    transition: opacity 0.5s;
+    position: relative;
 }
 .main{
-    position: relative;
     height: auto;
-    margin-top: 82px;
     padding-top: 50px;
 }
 #buttons{
@@ -55,6 +59,8 @@ body, html{
     border-radius: 100px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
     text-shadow: 0 1px 0 hsl(0deg 0% 100% / 25%);
+    padding-left:20px !important;
+    padding-right:20px !important;
 }
 .buttons-main:active{
     box-shadow:0 0 5px 2px rgba(0,0,0,0.3);
@@ -176,6 +182,7 @@ body, html{
     border:none;
 }
 #stats-wrapper{
+    opacity: 0;
     margin-top: 50px;
     min-width: 50%;
 }
@@ -211,7 +218,7 @@ button:focus-visible{
     min-width: auto;
     padding: 0 !important;
     overflow: hidden;
-    border: 2px solid var(--selected-background);
+    border: 1px solid var(--selected-background);
 }
 #latest{
     text-align: center;
@@ -253,7 +260,6 @@ button:focus-visible{
     color: rgba(0,0,0,0.7);
 }
 #main-nav{
-    position: absolute;
     display:flex;
     width:100%;
     z-index: 9999999;
@@ -277,18 +283,9 @@ button:focus-visible{
 }
 .chart{
     padding:40px;
-    top:50%;
-    transform: translateY(-50%);
     width: 100%;
+    position: absolute !important;
     box-sizing: border-box;
-    justify-content: space-evenly;
-}
-.chart .stats-nav{
-    margin:0;
-}
-.main, .chart{
-    transition: opacity 0.4s;
-    position: absolute;
 }
 
 .buttons-main{
@@ -300,12 +297,12 @@ button:focus-visible{
     position: absolute;
     height: 40px;
     width: 40px;
-    left:110%;
-    padding:0;
-    margin:0;
-    opacity:1;
-    top:2px;
-    border:1px solid rgba(0,0,0,0.125);
+    left: 110%;
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    top: 2px;
+    border: 1px solid rgba(0,0,0,0.125);
     border-radius: 50%;
     background-position: center;
     background-repeat: no-repeat;
@@ -354,15 +351,19 @@ button:focus-visible{
     padding:2.5rem 4rem;
     box-sizing: border-box;
 }
+#plus-button-wrapper{
+    position: relative;
+}
 footer{
     font-size: 13px;
     width:100%;
     box-sizing: border-box;
     display: flex;
     align-items: center;
+    margin-top:auto;
     justify-content: space-between;
-    padding:0.5rem 1.5rem;
-    background: var(--selected-background-secondary);
+    padding:0.75rem 1.5rem;
+    background: var(--selected-background);
     color:#eee;
 }
 .modal-heading{
@@ -372,8 +373,44 @@ footer{
     margin-bottom: 1rem;
 }
 
-.fadeout{
+#start-arrow{
     opacity:0;
+    position: absolute;
+    transition: opacity 1s linear 1s;
+    color: #555;
+    display: flex;
+    gap:0px;
+    flex-direction: column;
+    font-size: 22px;
+    left:50%;
+    bottom:105%;
+    transform: translate(-50%);
+}
+#start-arrow .arrow-ico, #start-arrow .arrow-text{
+    text-align: center;
+    white-space: nowrap;
+}
+#start-arrow svg{
+    fill:#555;
+    width:50px;
+}
+#start-arrow.show{
+    opacity: 1;
+    animation: bounce 800ms infinite cubic-bezier(0.445, 0.05, 0.55, 0.95);
+    animation-iteration-count: 6;
+}
+@keyframes bounce {
+    50% {
+        transform: translate(-50%, -20px);
+    }
+}
+    
+.fadeout{
+    opacity: 0;
     pointer-events: none;
-    position:absolute;
+    position: absolute;
+    transition: none;
+}
+.fadeout #buttons{
+    height: 0;
 }
