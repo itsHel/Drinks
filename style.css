@@ -5,7 +5,8 @@ body, html{
     min-height: 100%;
     margin: 0;
     height: 100%;
-    max-width: 780px !important;
+    min-width: 320px;
+    max-width: 800px;
     position: relative;
     margin: 0 auto;
 }
@@ -24,8 +25,7 @@ body{
     position: relative;
 }
 .main{
-    height: auto;
-    padding-top: 50px;
+    padding-top: 40px;
 }
 #buttons{
     display: flex;
@@ -40,35 +40,39 @@ body{
     text-align: center;
 }
 .buttons-main, .buttons{
-    min-width: 300px;
+    min-width: 280px;
     padding: 0.9rem 1rem;
-    border-radius: 8px;
+    border-radius: 7px;
     transition: all 0.5s;
     cursor: pointer;
-    margin: 0.75rem !important;
+    margin: 0.75rem 0 !important;
     font-size: 2rem;
     text-transform: capitalize;
     outline: none;
+    display: inline-block;
+    max-width: 70%;
+    white-space: nowrap;
 }
 .buttons-main:hover{
     transform: scale(1.05);
-    opacity: 0.9 !important;
+    opacity: 0.9;
 }
 .buttons-main{
     transition: all 0.3s;
     border-radius: 100px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
     text-shadow: 0 1px 0 hsl(0deg 0% 100% / 25%);
-    padding-left:20px !important;
-    padding-right:20px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
 }
 .buttons-main:active{
     box-shadow:0 0 5px 2px rgba(0,0,0,0.3);
 }
 .buttons-main:focus{
-    opacity: 1 !important;
+    opacity: 1;
 }
-.ripple-button .ripple {
+
+.ripple-button .ripple{
     position: absolute;
     border-radius: 50%;
     background-color: white;
@@ -82,20 +86,17 @@ body{
     touch-action: none;
     opacity: 0.7;
 }
-@keyframes ripple {
-  from {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(10);
-  }
+@keyframes ripple{
+    from {
+        opacity: 0.7;
+        transform: scale(1);
+    } 
+    to {
+        opacity: 0;
+        transform: scale(10);
+    }
 }
 
-.buttons{
-     display: inline-block !important;
-}
 .modal{
     position:fixed;
     top:0;
@@ -136,17 +137,16 @@ body{
     color: rgba(0,0,0,0.85);
     width: 100%;
     box-sizing: border-box;
-
     font-size: 1rem;
     box-sizing: border-box;
     border: 1px solid #c7d6db;
     color: #555;
     background-color: #f5f8f9;
 }
-#new-input::placeholder {
+#new-input::placeholder{
     color: rgba(0, 0, 0, 0.4);
 }
-#new-input:focus {
+#new-input:focus{
     outline: 0;
     border-color: #34bdfe;
     box-shadow: 0 0 2px 1px #2d99cc80;
@@ -183,23 +183,10 @@ body{
 }
 #stats-wrapper{
     opacity: 0;
-    margin-top: 50px;
-    min-width: 50%;
+    margin-top: 30px;
+    max-width: min(600px, 100%);
 }
-.counts{
-    font-weight: bold;
-    float:right;
-    width:28%;
-}
-.counts span{
-    text-align: center;
-    width:50%;
-    display:inline-block;
-}
-.stats-head{
-    font-size: 16px;
-    color:rgba(0,0,0,0.5);
-}
+
 button{
     cursor: pointer;
 }
@@ -234,7 +221,7 @@ button:focus-visible{
 .stats-nav{
     padding:0 15px;
     text-align: center;
-    margin: 30px 0;
+    margin: 24px 0;
 }
 .selected, .selected-chart{
     background: var(--selected-background) !important;
@@ -255,9 +242,28 @@ button:focus-visible{
     display: flex;
     justify-content: space-between;
 }
+.stats-head{
+    font-size: 16px;
+    color:rgba(0,0,0,0.5);
+}
 .title{
     text-transform: capitalize;
     color: rgba(0,0,0,0.7);
+    max-width: 74%;
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.counts{
+    font-weight: bold;
+    float:right;
+    width:26%;
+}
+.counts span{
+    text-align: center;
+    width:50%;
+    display:inline-block;
 }
 #main-nav{
     display:flex;
@@ -267,7 +273,7 @@ button:focus-visible{
 #main-nav > div{
     flex-grow: 1;
     font-size: 26px;
-    padding:25px;
+    padding: 22px;
     text-align: center;
     transition: all 0.4s;
     border: 1px solid rgba(0,0,0,0.25);
@@ -284,7 +290,7 @@ button:focus-visible{
 .chart{
     padding:40px;
     width: 100%;
-    position: absolute !important;
+    position: absolute;
     box-sizing: border-box;
 }
 
@@ -297,7 +303,7 @@ button:focus-visible{
     position: absolute;
     height: 40px;
     width: 40px;
-    left: 110%;
+    left: calc(100% + 30px);
     padding: 0;
     margin: 0;
     opacity: 1;
@@ -310,7 +316,7 @@ button:focus-visible{
 }
 .theme-button{
     border-radius: 50%;
-    width:1.25rem;
+    width: 1.25rem;
     height: 1.25rem;
     cursor: pointer;
     display: inline-block;
@@ -336,7 +342,7 @@ button:focus-visible{
 .theme-success{
     background: #28b78d;
 }
-
+/* Wait till there is assigned to show buttons */
 .bttn-class{
     opacity:0;
 }
@@ -348,8 +354,9 @@ button:focus-visible{
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding:2.5rem 4rem;
+    padding:2rem 4rem;
     box-sizing: border-box;
+    margin-top: auto;
 }
 #plus-button-wrapper{
     position: relative;
@@ -364,7 +371,7 @@ footer{
     justify-content: space-between;
     padding:0.75rem 1.5rem;
     background: var(--selected-background);
-    color:#eee;
+    color: #f3f3f3;
 }
 .modal-heading{
     font-size: 20px;
@@ -379,11 +386,10 @@ footer{
     transition: opacity 1s linear 1s;
     color: #555;
     display: flex;
-    gap:0px;
     flex-direction: column;
-    font-size: 22px;
-    left:50%;
-    bottom:105%;
+    font-size: 42px;
+    left: 50%;
+    bottom: 101%;
     transform: translate(-50%);
 }
 #start-arrow .arrow-ico, #start-arrow .arrow-text{
@@ -392,7 +398,8 @@ footer{
 }
 #start-arrow svg{
     fill:#555;
-    width:50px;
+    width:80px;
+    stroke-width: 0px;
 }
 #start-arrow.show{
     opacity: 1;
@@ -413,4 +420,14 @@ footer{
 }
 .fadeout #buttons{
     height: 0;
+}
+
+@media (max-width: 560px){
+    .buttons-main{
+        min-width: auto;
+        width: calc(100% - (2 * 50px));     /* 2 * width of after-button + margin-left + 2px */
+    }
+    .buttons-main:after{
+        left: calc(100% + 8px);
+    }
 }
