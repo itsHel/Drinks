@@ -8,8 +8,8 @@ const todayTill = 4;                        // Today counts till 4 am
 const chartLineColors = ['rgba(0, 10, 130, .7)', 'rgba(220, 20, 60, 1)', 'rgba(200, 99, 132, .9)', 'rgba(133, 0, 61, .9)', 'rgba(248, 144, 1, 1)', 'rgba(100, 180, 132, .9)'];
 
 $(function(){
-    var stats;
-    var buttons;
+    var stats = {};
+    var buttons = [];
 
     let theme = window.localStorage["theme"] || "primary";
     setTheme();
@@ -38,7 +38,6 @@ $(function(){
 
             drinks.getAll().onsuccess = function(){
                 let data = this.result;
-                console.log(data);
 
                 if(data?.length){
                     let unique = {};
@@ -65,13 +64,12 @@ $(function(){
                     }
 
                     stats = realData;
-                    
+                   
                     renderButtons();
                     renderChart();
-                    renderStats(stats);
+                    refreshStats();
                 } else {
                     $("#start-arrow").addClass("show");
-                    // $("#stats-wrapper").css({opacity:0});
 
                     $("#plus").one("click", function(){
                         $("#start-arrow").removeClass("show");
@@ -161,12 +159,12 @@ $(function(){
         });
         $("#new-confirm").on("click", function(){
             if($("#new-input").val()){
-                addNew($("#new-input").val());
+                addNew($("#new-input"));
             }
         });
         $("#new-input").on("keydown", function(e){
             if(e.key == "Enter"){
-                addNew($(this).val());
+                addNew($(this));
             }
         });
         $("#delete-confirm").on("click", function(){
@@ -259,7 +257,7 @@ $(function(){
     
     function renderButtons(){
         let buttonsHtml = buttons.map((button) => {
-            return "<div class=button-wrapper><button class='buttons-main ripple-button bttn-gradient bttn-lg bttn-" + theme + " bttn-class " + button + "'>" + button + "</button></div>";
+            return "<div class=button-wrapper><button class='buttons-main ripple-button bttn-gradient bttn-lg bttn-" + theme + " bttn-class'>" + button + "</button></div>";
         }).join("");
 
         $("#buttons").html(buttonsHtml);
@@ -326,7 +324,9 @@ $(function(){
         filterStats($(".selected").text());
     }
 
-    function addNew(val){
+    function addNew($input){
+        let val = $input.val();
+
         buttons.push(val);
         stats[val] = [];
 
@@ -336,9 +336,14 @@ $(function(){
         let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
 
         let col = {type: val, created: date};
+        stats[val].push(date);
 
         drinks.add(col).onsuccess = function(){
-            location.reload();
+            refreshStats();
+            renderButtons();
+
+            $input.val("");
+            $("#add-new").addClass("fadeout");
         };
     }
 
