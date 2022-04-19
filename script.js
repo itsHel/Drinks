@@ -1,7 +1,5 @@
 "use strict;"
 
-// $(".modal").fadeOut(0);
-// $(".chart").fadeOut(0);
 // TODO - allow to pick range of dates?
 
 const todayTill = 4;                        // Today counts till 4 am
@@ -74,7 +72,7 @@ $(function(){
                     $("#plus").one("click", function(){
                         $("#start-arrow").removeClass("show");
                     });
-                }   
+                }
             }
         };
     }
@@ -86,6 +84,7 @@ $(function(){
     
     initListeners();
     initDates();
+    setBackups();
 
     function addClick($button, e){
         let text = $button.text();
@@ -204,11 +203,68 @@ $(function(){
         });
     }
 
+    function setBackups(){
+        $("#download-backup").on("click", function(){
+            let link = $("#backup");
+
+            link[0].href = "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(stats));
+            link[0].click();
+        });
+
+        $("#upload-backup").on("click", function(){
+            $("#backup-input").click();
+        });
+
+        $("#backup-input").on("change", function(e){
+            let file = e.target.files[0];
+
+            if(file){
+                let reader = new FileReader();
+
+                reader.onload = (ev) => {
+                    try{
+                        let data = JSON.parse(ev.target.result);
+
+                        let db = _openRequest.result;
+                        let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
+
+                        drinks.clear().onsuccess = function(e){
+                            stats = {};
+                            buttons = [];
+
+                            for(const property in data){
+                                for(record of data[property]){
+                                    let col = {type: property, created: record};
+
+                                    drinks.add(col);
+
+                                    if(!stats.hasOwnProperty(property)){
+                                        stats[property] = [];
+                                        buttons.push(property);
+                                    }
+                                    
+                                    stats[property].push(record);
+                                }
+                            }
+
+                            renderButtons();
+                            renderChart();
+                            refreshStats();
+                        };
+                    } catch(err){console.log(err)}
+                };
+
+                reader.readAsText(file);
+            }
+        });
+    }
+
     function initDates(){
         $(".date-button").on("click", function(){
             $(this).addClass("selected").siblings().removeClass("selected");
             filterStats($(this).text());
         });
+
         $(".date-button-chart").on("click", function(){
             $(this).addClass("selected-chart").siblings().removeClass("selected-chart");
             renderChart($(this).text());
@@ -221,9 +277,9 @@ $(function(){
         
         switch(type.toLowerCase()){
             case "today":
+                let now = new Date();
                 let dayStart = new Date();
                 dayStart.setHours(todayTill - 1,59,59,999);
-                let now = new Date();
 
                 if(now.getHours() < todayTill){
                     time = (now - dayStart) * -1 + 20*3600*1000;
@@ -275,7 +331,6 @@ $(function(){
 
             if(e.shiftKey){
                 removeClick($(this));
-
                 return;
             }
 
