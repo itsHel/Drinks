@@ -1,8 +1,5 @@
 "use strict;"
 
-// No need for server
-// Data gets deleted on clearing cookies
-
 // TODO - allow to pick range of dates?
 
 $(function(){
@@ -11,53 +8,33 @@ $(function(){
     
     var stats = {};
     var buttons = [];
-    var lastMarked = -1;
-    var myLineChart = null;
 
     let theme = window.localStorage["theme"] || "primary";
     setTheme();
 
-    let _openRequest = indexedDB.open("drinks-full", 1);
+    function init(){
+        $.ajax({
+            method: "GET",
+            url: "_backend/php/getall.php",
+            success: function(echo){
+                let data = JSON.parse(echo);
 
-    function initDB(){
-        _openRequest.onupgradeneeded = function(){
-            let db = _openRequest.result;
-
-            if(!db.objectStoreNames.contains('drinks')){ 
-                db.createObjectStore('drinks', {keyPath: 'id', autoIncrement: true});
-            }
-
-            this.transaction.objectStore("drinks").createIndex('type', 'type');
-            this.transaction.objectStore("drinks").createIndex('created', 'created');
-        }
-
-        _openRequest.onerror = function(){
-            console.error("onError", this.error);
-        };
-
-        _openRequest.onsuccess = function(){
-            let db = this.result;
-            let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
-
-            drinks.getAll().onsuccess = function(){
-                let data = this.result;
-
-                if(data?.length){
-                    let parsedData = {};
+                if(data.length){
+                    let realData = {};
                     data.forEach(record => {
-                        if(!parsedData.hasOwnProperty(record.type)){
-                            parsedData[record.type] = [];
+                        if(!realData.hasOwnProperty(record.type)){
+                            realData[record.type] = [];
                         }
 
-                        parsedData[record.type].push(record.created);
+                        realData[record.type].push(record.created);
                     });
 
                     buttons = [];
-                    for(const property in parsedData){
+                    for(const property in realData){
                         buttons.push(property);
                     }
 
-                    stats = parsedData;
+                    stats = realData;
                    
                     renderButtons();
                     renderChart();
@@ -70,14 +47,16 @@ $(function(){
                     });
                 }
             }
-        };
+        });
     }
 
-    initDB();
+    init();
+
+    let lastMarked = -1;
+    let myLineChart = null;
     
     initListeners();
     initDates();
-    setBackups();
 
     function addClick($button, e){
         let type = $button.text();
@@ -88,80 +67,77 @@ $(function(){
 
         if(e.offsetX > $button[0].offsetWidth){
             // :after click
-            date = new Date(Date.now() - 86_400_000).toLocaleString("sv").slice(0, -3); 
+            date = new Date(Date.now() - 86_400_000).toLocaleString("sv"); 
         } else {
             // button click
-            date = new Date().toLocaleString("sv").slice(0, -3);
+            date = new Date().toLocaleString("sv");
         }
         
-        let db = _openRequest.result;
-        let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
+        insert(type, date);
+    }
 
-        let col = {type: type, created: date};
-
-        drinks.add(col);
-
-        stats[type].push(date);
-        refreshStats();
+    function insert(type, date){
+        $.ajax({
+            method: "GET",
+            url: "_backend/php/insert.php?type=" + type + "&created=" + date,
+            success: function(echo){
+                if(echo == "1"){
+                    stats[type].push(date);
+                    refreshStats();
+                } else {
+                    alert(echo);
+                }
+            }
+        });
     }
 
     // Removes last drink of type
     function removeClick($button, all = false){
         let type = $button.text();
+        let url = "_backend/php/delete.php?type=" + type;
 
-        let db = _openRequest.result;
-        let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
-
-        drinks.getAll().onsuccess = function(){
-            // Array of objects
-            let data = this.result;
-
-            if(all){
-                for(let i = data.length - 1; i >= 0; i--){
-                    if(data[i].type == type){
-                        drinks.delete(data[i].id);
-                    }
-                }
-            } else {
-                for(let i = data.length - 1; i >= 0; i--){
-                    if(data[i].type == type){
-                        drinks.delete(data[i].id);
-                        break;
-                    }
-                }
-
-                stats[type].pop();
-            }
-
-            refreshStats();
+        if(all){
+            url += "&all=true";
+            delete stats[type];
+        } else {
+            stats[type].pop();
         }
+
+        $.ajax({
+            method: "GET",
+            url: url,
+            success: function(echo){
+                if(echo == "1"){
+                    refreshStats();
+                } else {
+                    alert(echo);
+                }
+            }
+        });
     }
 
     function initListeners(){
         $(".theme-button").on("click", function(){
             theme = this.dataset.theme;
-            window.localStorage["theme"] = theme;
 
             setTheme();
-        });
 
+            window.localStorage["theme"] = theme;
+        });
         $(".modal").on("click", function(e){
             if(e.target.classList.contains("modal") || e.target.classList.contains("cancel-button"))
                 $(".modal").addClass("fadeout");
         });
-
         $("#new-confirm").on("click", function(){
             if($("#new-input").val()){
                 addNew($("#new-input"));
             }
         });
-
         $("#new-input").on("keydown", function(e){
             if(e.key == "Enter"){
                 addNew($(this));
             }
         });
-
         $("#delete-confirm").on("click", function(){
             let $button = $(".buttons-main").eq(lastMarked);
 
@@ -169,6 +145,9 @@ $(function(){
             delete stats[removed];
 
             removeClick($button, true);
+
+            window.localStorage["buttons"] = JSON.stringify(buttons);
+            window.localStorage["stats"] = JSON.stringify(stats);
 
             $button.remove();
             $(".modal").addClass("fadeout");
@@ -193,62 +172,6 @@ $(function(){
         $("#chart-button").on("click", function(){
             $(".chart").removeClass("fadeout"); 
             $(".main").addClass("fadeout");
-        });
-    }
-
-    function setBackups(){
-        $("#download-backup").on("click", function(){
-            let link = $("#backup");
-
-            link[0].href = "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(stats));
-            link[0].click();
-        });
-
-        $("#upload-backup").on("click", function(){
-            $("#backup-input").click();
-        });
-
-        $("#backup-input").on("change", function(e){
-            let file = e.target.files[0];
-
-            if(file){
-                let reader = new FileReader();
-
-                reader.onload = (ev) => {
-                    try{
-                        let data = JSON.parse(ev.target.result);
-
-                        let db = _openRequest.result;
-                        let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
-
-                        drinks.clear().onsuccess = function(){
-                            stats = {};
-                            buttons = [];
-
-                            for(const property in data){
-                                for(record of data[property]){
-                                    let col = {type: property, created: record};
-
-                                    drinks.add(col);
-
-                                    if(!stats.hasOwnProperty(property)){
-                                        stats[property] = [];
-                                        buttons.push(property);
-                                    }
-                                    
-                                    stats[property].push(record);
-                                }
-                            }
-
-                            renderButtons();
-                            renderChart();
-                            refreshStats();
-                        };
-                    } catch(err){console.log(err)}
-                };
-
-                reader.readAsText(file);
-            }
         });
     }
 
@@ -379,21 +302,17 @@ $(function(){
         buttons.push(type);
         stats[type] = [];
 
-        let date = new Date().toLocaleString("sv").slice(0, -3);
+        let date = new Date().toLocaleString("sv");
         
-        let db = _openRequest.result;
-        let drinks = db.transaction("drinks", "readwrite").objectStore("drinks");
-
-        let col = {type: type, created: date};
         stats[type].push(date);
 
-        drinks.add(col).onsuccess = function(){
-            renderButtons();
-            refreshStats();
+        insert(type, date);
 
-            $input.val("");
-            $("#add-new").addClass("fadeout");
-        };
+        refreshStats();
+        renderButtons();
+
+        $input.val("");
+        $("#add-new").addClass("fadeout");
     }
 
     function setTheme(){
@@ -544,6 +463,29 @@ $(function(){
             }
         }
 
+        // Filled background charts
+        // var firstGradient = ctxl.createLinearGradient(0, 0, 200, 200);
+        // firstGradient.addColorStop(0, "rgba(10,3,138,0.4)");
+        // firstGradient.addColorStop(0.5, "rgba(91,91,255,0.4)");
+        // firstGradient.addColorStop(1, "rgba(0,189,227,0.4)");
+        
+        // var secondGradient = ctxl.createLinearGradient(0, 0, 200, 200);
+        // secondGradient.addColorStop(0, "rgba(82,0,103,0.4)");
+        // secondGradient.addColorStop(0.5, "rgba(215,100,255,0.4)");
+        // secondGradient.addColorStop(1, "rgba(223,144,255,0.4)");
+        
+        // var thirdGradient = ctxl.createLinearGradient(0, 0, 200, 200);
+        // thirdGradient.addColorStop(0, "rgba(133,0,61,0.4)");
+        // thirdGradient.addColorStop(0.5, "rgba(103,9,121,0.4)");
+        // thirdGradient.addColorStop(1, "rgba(175,0,255,0.4)");
+        
+        // var fourthGradient = ctxl.createLinearGradient(0, 0, 200, 200);
+        // fourthGradient.addColorStop(0, "rgba(166,0,103,0.6)");
+        // fourthGradient.addColorStop(0.5, "rgba(215,170,255,0.4)");
+        // fourthGradient.addColorStop(1, "rgba(111,66,255,0.4)");
+
+        // let chartColors = [firstGradient, secondGradient, thirdGradient, fourthGradient];
+
         let ctxl = $("#lineChart")[0].getContext('2d');
         
         let chartRenderData = [];
@@ -554,6 +496,7 @@ $(function(){
                 label: key,
                 data: chartData[key].counts,
                 lineTension: 0,                     // Line smoothness
+            //    backgroundColor: chartColors[i],
             backgroundColor: chartLineColors[i],
                 fill: false,
                 borderColor: chartLineColors[i],
@@ -585,6 +528,11 @@ $(function(){
                     responsive: true,
                     animation: {
                         duration: 2000
+                    },
+                    legend: {
+                        labels: {
+                            // usePointStyle: true,
+                        }
                     }
                 }
             });

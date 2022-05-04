@@ -441,17 +441,22 @@ footer > div{
     width: 22px;
     height: 22px;
 }
-    
+ 
 .fadeout{
     opacity: 0;
     pointer-events: none;
     position: absolute;
     transition: none;
 }
-.fadeout #buttons{
+.main.fadeout{
     height: 0;
 }
 
+@media (max-width: 700px){
+    .small-display-hide{
+        display: none;
+    }
+}
 @media (max-width: 560px){
     .buttons-main{
         min-width: auto;
